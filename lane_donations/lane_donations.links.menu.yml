@@ -1,5 +1,5 @@
 
-# SSPCA Donation menu items definition
+# Donation menu items definition
 entity.donation.collection:
   title: 'Donations'
   route_name: entity.donation.collection

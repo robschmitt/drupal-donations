@@ -22,15 +22,15 @@ class SspcaDonationAccessControlHandler extends EntityAccessControlHandler {
     switch ($operation) {
       case 'view':
         if (!$entity->isPublished()) {
-          return AccessResult::allowedIfHasPermission($account, 'view unpublished sspca donation entities');
+          return AccessResult::allowedIfHasPermission($account, 'view unpublished donation entities');
         }
-        return AccessResult::allowedIfHasPermission($account, 'view published sspca donation entities');
+        return AccessResult::allowedIfHasPermission($account, 'view published donation entities');
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit sspca donation entities');
+        return AccessResult::allowedIfHasPermission($account, 'edit donation entities');
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete sspca donation entities');
+        return AccessResult::allowedIfHasPermission($account, 'delete donation entities');
     }
 
     // Unknown operation, no opinion.
@@ -41,7 +41,7 @@ class SspcaDonationAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add sspca donation entities');
+    return AccessResult::allowedIfHasPermission($account, 'add donation entities');
   }
 
 }

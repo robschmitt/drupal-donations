@@ -12,15 +12,15 @@ use Drupal\lane_donations\DonationHelper;
 use Drupal\lane_donations\Entity\Donation;
 use Drupal\Core\Locale\CountryManager;
 use Drupal\lane_donations\WhereDidYouHearAboutUsOptions;
-use Drupal\lane_sspca_api\SSPCA_API;
+use Drupal\lane_client_api\CLIENT_API;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DonationForm extends FormBase {
 
   /**
-   * @var \Drupal\lane_sspca_api\SSPCA_API
+   * @var \Drupal\lane_client_api\CLIENT_API
    */
-  protected $sspca_api;
+  protected $client_api;
 
   protected $config_page;
 
@@ -63,7 +63,7 @@ class DonationForm extends FormBase {
     return 'donation_form';
   }
 
-  public function __construct(SSPCA_API $sspca_api,
+  public function __construct(CLIENT_API $client_api,
                               ConfigPagesLoaderService $config_page_loader,
                               CurrentRouteMatch $current_route_match,
                               PrivateTempStoreFactory $temp_store_factory,
@@ -75,7 +75,7 @@ class DonationForm extends FormBase {
 
     $request = $this->getRequest();
 
-    $this->sspca_api = $sspca_api;
+    $this->client_api = $client_api;
     $this->config_page = $config_page_loader->load('site_settings');
 
     $this->temp_store = $temp_store_factory->get('lane_donations');
@@ -113,7 +113,7 @@ class DonationForm extends FormBase {
   public static function create(ContainerInterface $container)
   {
     return new static(
-      $container->get('lane_sspca_api.interface'),
+      $container->get('lane_client_api.interface'),
       $container->get('config_pages.loader'),
       $container->get('current_route_match'),
       $container->get('tempstore.private'),
@@ -664,7 +664,7 @@ END;
       $values['dob'] = $form_values['dob']->format('d/m/Y');
     }
 
-    if ($contact_id = $this->sspca_api->createContact($values)) {
+    if ($contact_id = $this->client_api->createContact($values)) {
       $values['contact_id'] = $contact_id;
     }
 
@@ -695,7 +695,7 @@ END;
        * No payment redirect is required so we can send the donation straight
        * to the client, and send our email confirmations
        */
-      $this->sspca_api->addDonation($donation);
+      $this->client_api->addDonation($donation);
       DonationHelper::sendConfirmation($donation);
       DonationHelper::sendNotification($donation);
 

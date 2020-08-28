@@ -3,18 +3,18 @@ namespace Drupal\lane_donations\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\state_machine\Event\WorkflowTransitionEvent;
-use Drupal\lane_sspca_api\SSPCA_API;
-use Drupal\lane_donations\Entity\SspcaDonation;
+use Drupal\lane_client_api\CLIENT_API;
+use Drupal\lane_donations\Entity\Donation;
 
-class SspcaDonationEventSubscriber implements EventSubscriberInterface {
+class DonationEventSubscriber implements EventSubscriberInterface {
 
   /**
-   * @var \Drupal\lane_sspca_api\SSPCA_API
+   * @var \Drupal\lane_client_api\CLIENT_API
    */
-  protected $sspca_api;
+  protected $client_api;
 
-  public function __construct(SSPCA_API $sspca_api) {
-    $this->sspca_api = $sspca_api;
+  public function __construct(CLIENT_API $client_api) {
+    $this->client_api = $client_api;
   }
 
   public static function getSubscribedEvents() {
@@ -64,7 +64,7 @@ class SspcaDonationEventSubscriber implements EventSubscriberInterface {
       'where_did_you_hear_about_us' => $order->getData('where_did_you_hear_about_us'),
     ];
 
-    if ($contact_id = $this->sspca_api->createContact($contact)) {
+    if ($contact_id = $this->client_api->createContact($contact)) {
       $contact['contact_id'] = $contact_id;
     }
 
@@ -146,7 +146,7 @@ class SspcaDonationEventSubscriber implements EventSubscriberInterface {
       $donation = $this->createDonation($contact, $donation);
 
       if ($donation->id() && !empty($contact['contact_id'])) {
-        $this->sspca_api->addDonation($donation);
+        $this->client_api->addDonation($donation);
       }
 
     }
@@ -155,7 +155,7 @@ class SspcaDonationEventSubscriber implements EventSubscriberInterface {
 
   protected function createDonation($contact, $donation_data) {
 
-    $donation = SspcaDonation::create([
+    $donation = Donation::create([
       'name' => $contact['first_name'] . ' ' . $contact['surname'],
       'uid' => 1,
     ]);

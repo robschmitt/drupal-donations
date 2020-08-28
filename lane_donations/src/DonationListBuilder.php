@@ -12,7 +12,7 @@ use Drupal\Core\Render\Element\Date;
  *
  * @ingroup lane_donations
  */
-class SspcaDonationListBuilder extends EntityListBuilder {
+class DonationListBuilder extends EntityListBuilder {
 
   /**
    * Loads entity IDs using a pager sorted by the entity id.
@@ -52,8 +52,8 @@ class SspcaDonationListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.sspca_donation.edit_form',
-      ['sspca_donation' => $entity->id()]
+      'entity.donation.edit_form',
+      ['donation' => $entity->id()]
     );
     $row['type'] = $entity->field_donation_type->value;
     $row['description'] = substr($entity->field_description->value, 0, 25);

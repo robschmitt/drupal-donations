@@ -2,18 +2,18 @@
 
 namespace Drupal\lane_donations;
 
-use Drupal\lane_donations\Entity\SspcaDonationInterface;
+use Drupal\lane_donations\Entity\DonationInterface;
 
 class DonationHelper {
 
-  public static function sendToSspca(SspcaDonationInterface $donation)
+  public static function sendToClient(DonationInterface $donation)
   {
-    /** @var \Drupal\lane_sspca_api\SSPCA_API $sspca_api */
-    $sspca_api = \Drupal::service('lane_sspca_api.interface');
-    $sspca_api->addDonation($donation);
+    /** @var \Drupal\lane_client_api\CLIENT_API $client_api */
+    $client_api = \Drupal::service('lane_client_api.interface');
+    $client_api->addDonation($donation);
   }
 
-  public static function sendConfirmation(SspcaDonationInterface $donation)
+  public static function sendConfirmation(DonationInterface $donation)
   {
 
     $to = $donation->field_email->value;
@@ -56,9 +56,9 @@ class DonationHelper {
   }
 
   /**
-   * @param SspcaDonationInterface $donation
+   * @param DonationInterface $donation
    */
-  public static function sendNotification(SspcaDonationInterface $donation)
+  public static function sendNotification(DonationInterface $donation)
   {
 
     $current_user = \Drupal::currentUser();
@@ -125,7 +125,7 @@ class DonationHelper {
   }
 
 
-  public static function buildConfirmationTable(SspcaDonationInterface $donation, array &$build)
+  public static function buildConfirmationTable(DonationInterface $donation, array &$build)
   {
 
     /**

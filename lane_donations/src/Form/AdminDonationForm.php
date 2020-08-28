@@ -11,7 +11,7 @@ use Drupal\Core\Url;
 use Drupal\lane_donations\DonationHelper;
 use Drupal\lane_donations\Entity\Donation;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\lane_sspca_api\SSPCA_API;
+use Drupal\lane_client_api\CLIENT_API;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
@@ -21,11 +21,11 @@ use Drupal\Core\TempStore\PrivateTempStoreFactory;
 class AdminDonationForm extends FormBase {
 
   /**
-   * Drupal\lane_sspca_api\SSPCA_API definition.
+   * Drupal\lane_client_api\CLIENT_API definition.
    *
-   * @var \Drupal\lane_sspca_api\SSPCA_API
+   * @var \Drupal\lane_client_api\CLIENT_API
    */
-  protected $sspca_api;
+  protected $client_api;
 
   /**
    * @var ConfigPagesLoaderService
@@ -49,12 +49,12 @@ class AdminDonationForm extends FormBase {
   /**
    * Constructs a new AdminDonationForm object.
    */
-  public function __construct(SSPCA_API $lane_sspca_api_interface,
+  public function __construct(CLIENT_API $lane_client_api_interface,
                               PrivateTempStoreFactory $temp_store_factory,
                               ConfigPagesLoaderService $config_page_loader,
                               Renderer $renderer)
   {
-    $this->sspca_api = $lane_sspca_api_interface;
+    $this->client_api = $lane_client_api_interface;
     $this->temp_store = $temp_store_factory->get('lane_donations');
     $this->config_page_loader = $config_page_loader;
     $this->config_page = $this->config_page_loader->load('site_settings');
@@ -73,7 +73,7 @@ class AdminDonationForm extends FormBase {
   public static function create(ContainerInterface $container)
   {
     return new static(
-      $container->get('lane_sspca_api.interface'),
+      $container->get('lane_client_api.interface'),
       $container->get('tempstore.private'),
       $container->get('config_pages.loader'),
       $container->get('renderer')
@@ -400,7 +400,7 @@ END;
       $values['dob'] = $this->donation->field_dob->value;
     }
 
-    $contact_id = $this->sspca_api->createContact($values);
+    $contact_id = $this->client_api->createContact($values);
     if ($contact_id) {
       $this->donation->field_contact_id = $contact_id;
     }
@@ -428,7 +428,7 @@ END;
        * No payment redirect is required so we can send the donation straight
        * to the client, and send our email confirmations.
        */
-      $this->sspca_api->addDonation($this->donation);
+      $this->client_api->addDonation($this->donation);
       DonationHelper::sendConfirmation($this->donation);
       DonationHelper::sendNotification($this->donation);
 

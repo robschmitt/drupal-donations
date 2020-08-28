@@ -1,0 +1,5 @@
+name: 'Lane SSPCA API'
+type: module
+description: 'Provides integration with the SSPCA API.'
+core: 8.x
+package: 'Custom'
