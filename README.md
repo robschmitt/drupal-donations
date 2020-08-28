@@ -17,5 +17,6 @@ This module does several things:
 
 - Provides a `Donation` entity as the main storage mechanism for donation data.
 - Provides various forms for taking one-off and recurring donations.
+- Provides integration with Stripe for taking payments.
 - Adds a Gift Aid section to the Drupal Commerce checkout flow.
 - Integrates with the client's API for recording donations remotely.
