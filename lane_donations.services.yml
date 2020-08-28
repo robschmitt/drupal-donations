@@ -1,0 +1,9 @@
+services:
+  lane_donations_event_subscriber:
+    class: '\Drupal\lane_donations\EventSubscriber\SspcaDonationEventSubscriber'
+    arguments: ['@lane_sspca_api.interface']
+    tags:
+      - { name: 'event_subscriber' }
+  lane_donations.where_did_your_hear_about_us_options:
+    class: Drupal\lane_donations\WhereDidYouHearAboutUsOptions
+    arguments: ['@config_pages.loader']

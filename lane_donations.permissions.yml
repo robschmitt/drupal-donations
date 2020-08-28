@@ -1,0 +1,23 @@
+add donation entities:
+  title: 'Create new donation entities'
+
+administer donation entities:
+  title: 'Administer donation entities'
+  description: 'Allow to access the administration form to configure donation entities.'
+  restrict access: true
+
+delete donation entities:
+  title: 'Delete donation entities'
+
+edit donation entities:
+  title: 'Edit donation entities'
+
+view published donation entities:
+  title: 'View published donation entities'
+
+view unpublished donation entities:
+  title: 'View unpublished donation entities'
+
+access backend donation functionality:
+  title: 'Access backend donation functionality'
+  restrict access: true

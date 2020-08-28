@@ -1,0 +1,122 @@
+lane_donations.donations_controller_payment:
+  path: '/donation/{donation_id}/payment-redirect'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentRedirect'
+    _title: 'Payment redirect'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.donations_controller_return:
+  path: '/donation/{donation_id}/return'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentReturn'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.donations_controller_cancel:
+  path: '/donation/{donation_id}/cancel'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentCancel'
+    _title: 'Donation cancelled'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.donations_controller_error:
+  path: '/donation/{donation_id}/error'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentError'
+    _title: 'An error has occurred.'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.donations_controller_success:
+  path: '/donation/{donation_id}/success'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::success'
+    _title: 'Thank you for your donation'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.donations_controller_membership_success:
+  path: '/donation/{donation_id}/membership/success'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::success'
+    _title: 'Thank you for your donation'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.admin_donation_contact_form:
+  path: '/admin/capture-donation/{donation_id}'
+  defaults:
+    _form: '\Drupal\lane_donations\Form\AdminDonationContactForm'
+    _title: 'Create a donation: Contact details'
+    donation_id: null
+  requirements:
+    _permission: 'access backend donation functionality'
+
+lane_donations.admin_donation_form:
+  path: '/admin/capture-donation/{donation_id}/donation'
+  defaults:
+    _form: '\Drupal\lane_donations\Form\AdminDonationForm'
+    _title: 'Create a donation: Donation details'
+  requirements:
+    _permission: 'access backend donation functionality'
+
+lane_donations.admin_donation_payment:
+  path: '/admin/capture-donation/{donation_id}/payment-redirect'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentRedirect'
+    _title: 'Payment redirect'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.admin_donation_success:
+  path: '/admin/capture-donation/{donation_id}/success'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::adminSuccess'
+    _title: 'Donation completed'
+  requirements:
+    _permission: 'access backend donation functionality'
+
+lane_donations.admin_donation_return:
+  path: '/admin/capture-donation/{donation_id}/return'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentReturn'
+  requirements:
+    _permission: 'access content'
+
+lane_donations.admin_donation_cancel:
+  path: '/admin/capture-donation/{donation_id}/cancel'
+  defaults:
+    _controller: '\Drupal\lane_donations\Controller\DonationsController::paymentCancel'
+    _title: 'Donation cancelled'
+  requirements:
+    _permission: 'access content'
+
+#lane_donations.test_email_table:
+#  path: '/test-email-table'
+#  defaults:
+#    _controller: '\Drupal\lane_donations\Controller\DonationsController::testEmailTable'
+#    _title: 'Test email table'
+#  requirements:
+#    _permission: 'access backend donation functionality'
+#
+#lane_donations.test_order:
+#  path: '/debug-order/{order}'
+#  defaults:
+#    _controller: '\Drupal\lane_donations\Controller\DonationsController::debugOrder'
+#    _title: 'Debug order'
+#  requirements:
+#    _permission: 'access content'
+#  options:
+#    parameters:
+#      order:
+#        type: entity:commerce_order
+#
+#lane_donations.test_add_donation:
+#  path: '/test-add-donation'
+#  defaults:
+#    _controller: '\Drupal\lane_donations\Controller\DonationsController::addTestDonation'
+#    _title: 'Test add donation to order'
+#  requirements:
+#    _permission: 'access content'

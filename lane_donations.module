@@ -1,0 +1,287 @@
+<?php
+
+/**
+ * @file
+ * Contains lane_donations.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function lane_donations_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the lane_donations module.
+    case 'help.page.lane_donations':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides functionality around donations.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+function lane_donations_mail($key, &$message, $params) {
+
+  /** @var \Drupal\Core\Render\RendererInterface $renderer */
+  $renderer = \Drupal::service('renderer');
+
+  $options['langcode'] = $message['langcode'];
+  $message['from'] = \Drupal::config('system.site')->get('mail');
+
+  $message['body'][] = $renderer->render($params['body']);
+
+  switch ($key) {
+    case 'single':
+    case 'recurring':
+    case 'fundraiser':
+      $message['subject'] = t('Your order @order_ref', ['@order_ref' => $params['donation_reference']]);
+      break;
+    case 'notification':
+      $message['headers']['Bcc'] = $params['bcc'];
+      $message['subject'] = t('Confirmation of new donation received');
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function lane_donations_theme($existing, $type, $theme, $path) {
+  return [
+    'lane_donations_confirmation_single' => [
+      'variables' => [],
+    ],
+    'lane_donations_confirmation_recurring' => [
+      'variables' => [],
+    ],
+    'lane_donations_confirmation_fundraiser' => [
+      'variables' => [],
+    ],
+  ];
+}
+
+function lane_donations_preprocess_paragraph(&$variables) {
+  $paragraph = $variables['paragraph'];
+
+  switch ($paragraph->bundle()) {
+
+    case 'mini_donation_form':
+      $amount_content = [];
+
+      foreach (['1', '2', '3', 'other'] as $key) {
+        $image_field_name = 'field_amount_' . $key . '_image';
+        $text_field_name = 'field_amount_' . $key . '_text';
+
+        if (!$paragraph->$image_field_name->entity && !$paragraph->$text_field_name->value) {
+          continue;
+        }
+
+        $output = ['<div class="media mb-3">'];
+
+        if ($paragraph->$image_field_name->entity) {
+          $uri = $paragraph->$image_field_name->entity->field_media_image->entity->getFileUri();
+          $image = \Drupal\image\Entity\ImageStyle::load('cropped_thumbnail')->buildUrl($uri);
+          $output[] = '<img src="' . $image . '" class="mr-2" alt="Image for donation content">';
+        }
+
+        if ($paragraph->$text_field_name) {
+          $output[] = '<div class="media-body small-text">' . $paragraph->$text_field_name->value . '</div>';
+        }
+
+        $output[] = '</div>';
+
+        $amount_content['amount_' . $key] = implode("\n", $output);
+
+      }
+
+      $link_below = '';
+      if ($paragraph->field_mini_donation_link) {
+        $link = $paragraph->field_mini_donation_link->view('full');
+        $link_below = render($link);
+      }
+
+      $variables['content'] = \Drupal::formBuilder()
+        ->getForm(Drupal\lane_donations\Form\BannerDonationForm::class,
+          $paragraph->field_mini_donation_title->value,
+          trim($paragraph->field_intro->value),
+          $amount_content,
+          $link_below
+        );
+
+      break;
+
+    case 'donation_forms':
+
+      // The block content varies by the URL query arg
+      $variables['#cache']['contexts'][] = 'url.query_args';
+
+      $default_donation_type = 'monthly';
+      $req_default_type = \Drupal::request()->get('submitted_type');
+      if (!$req_default_type) {
+        $req_default_type = \Drupal::request()->get('type');
+      }
+      if ($req_default_type && in_array($req_default_type, ['single', 'monthly'])) {
+        $default_donation_type = $req_default_type;
+      }
+
+      if ($default_donation_type == 'single') {
+        $variables['single_active'] = 'active';
+        $variables['single_selected'] = 'true';
+        $variables['monthly_active'] = '';
+        $variables['monthly_selected'] = '';
+      }
+      elseif ($default_donation_type == 'monthly') {
+        $variables['single_active'] = '';
+        $variables['single_selected'] = '';
+        $variables['monthly_active'] = 'active';
+        $variables['monthly_selected'] = 'true';
+      }
+
+      break;
+  }
+}
+
+function lane_donations_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if (strpos($form['#id'], 'views-form-commerce-cart-form') === 0) {
+
+    $form['actions']['submit']['#submit'][] = 'lane_donations_add_donation_to_cart_submit';
+    $form['actions']['checkout']['#submit'][] = 'lane_donations_add_donation_to_cart_submit';
+
+    $form['donation'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => 'row style-bg-grey my-3',
+      ],
+    ];
+
+    $form['donation']['copy'] = [
+      '#prefix' => '<div class="col-md-6">',
+      '#suffix' => '</div>',
+      '#markup' => '<h2 class="h4">' . t('Add a donation') . '</h2>' .
+        t('Add an optional donation to your order.')
+    ];
+
+    $form['donation']['donation_amount'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => 'col-md-6',
+      ],
+    ];
+
+    $form['donation']['donation_amount']['amount'] = [
+      '#type' => 'radios',
+      '#title' => t('Donation amount'),
+      '#title_display' => 'invisible',
+      '#options' => [
+        '3' => '£3',
+        '5' => '£5',
+        '10' => '£10',
+        'other' => '£___'
+      ],
+      '#wrapper_attributes' => [
+        'class' => [
+          'custom-radios', 'custom-white-radios', 'inline-label',
+        ]
+      ],
+    ];
+
+    $form['donation']['donation_amount']['other_amount'] = [
+      '#type' => 'textfield',
+      '#title' => t('Other amount'),
+      '#pattern' => '[0-9.]+',
+      '#states' => [
+        'visible' => [
+          ':input[name="amount"]' => ['value' => 'other']
+        ]
+      ],
+      '#wrapper_attributes' => [
+        'class' => ['inline-label']
+      ],
+      '#attributes' => ['class' => ['field-other-amount']],
+    ];
+
+  }
+
+}
+
+function lane_donations_add_donation_to_cart_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+
+  $donation_amount = $form_state->getValue('amount');
+
+  if ($donation_amount == 'other') {
+    $donation_amount = $form_state->getValue('other_amount');
+  }
+
+  if ($donation_amount) {
+    $current_store = \Drupal::service('commerce_store.current_store');
+    $store = $current_store->getStore();
+
+    $order_item = \Drupal::entityTypeManager()->getStorage('commerce_order_item')->create([
+      'type' => 'donation',
+      'title' => t('Donation'),
+      'unit_price' => [
+        'number' => $donation_amount,
+        'currency_code' => 'GBP',
+      ],
+    ]);
+
+    $cart_provider = \Drupal::service('commerce_cart.cart_provider');
+    // Always use the 'default' order type.
+    $cart = $cart_provider->getCart('default', $store);
+
+    if (!$cart) {
+      $cart = $cart_provider->createCart('default', $store);
+    }
+    \Drupal::service('commerce_cart.cart_manager')
+      ->addOrderItem($cart, $order_item, FALSE);
+  }
+
+}
+
+function lane_donations_add_donation_to_cart_callback(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+
+//  print_r($form_state->getValues());
+
+  return [
+    '#markup' => 'foo'
+  ];
+}
+
+function lane_donations_user_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+
+  $user = $build['#user'];
+
+  if ($view_mode == 'full' && $user->hasRole('donation')) {
+
+    $build['container'] = [
+      '#type' => 'container',
+    ];
+
+    $link = \Drupal\Core\Link::createFromRoute(
+      t('Capture donation'),
+      'lane_donations.admin_donation_contact_form',
+      [],
+      [
+        'attributes' => [
+          'class' => ['btn', 'btn-outline-primary', 'mr-2'],
+        ]
+      ]
+    );
+
+    $build['container']['link'] = $link->toRenderable();
+
+    $build['container']['link2'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'a',
+      '#attributes' => [
+        'class' => ['btn', 'btn-outline-secondary'],
+        'href' => '/admin/config/donation-settings',
+      ],
+      '#value' => t('Donation settings'),
+    ];
+
+  }
+
+}

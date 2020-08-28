@@ -1,0 +1,5 @@
+entity.donation.add_form:
+  route_name: entity.donation.add_form
+  title: 'Add Donation'
+  appears_on:
+    - entity.donation.collection

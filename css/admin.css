@@ -1,0 +1,12 @@
+.donation-form #edit-form-actions {
+    padding-top: 1rem;
+}
+
+#card-element {
+    margin: 1rem 0;
+    max-width: 400px;
+}
+
+.donation-form #card-errors {
+    margin: 1rem 0;
+}

@@ -1,0 +1,42 @@
+tabs:
+  js:
+    js/tabs.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery
+    - core/jquery.once
+
+stripe-lib:
+  js:
+    https://js.stripe.com/v3/: { type: external }
+
+stripe:
+  js:
+    js/stripe.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - lane_donations/stripe-lib
+
+donation-forms:
+  js:
+    js/donation-forms.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
+
+gtm-integration:
+  header: true
+  js:
+    js/gtm-integration.js: { weight: -2 }
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+
+admin-css:
+  css:
+    theme:
+      css/admin.css: {}

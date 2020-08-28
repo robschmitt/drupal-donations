@@ -1,0 +1,14 @@
+
+# SSPCA Donation menu items definition
+entity.donation.collection:
+  title: 'Donations'
+  route_name: entity.donation.collection
+  description: 'List Donation entities'
+  parent: system.admin_content
+  weight: 100
+
+donation.admin.structure.settings:
+  title: 'Donation entity settings'
+  description: 'Configure Donation entities'
+  route_name: donation.settings
+  parent: system.admin_structure
