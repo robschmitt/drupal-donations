@@ -1,4 +1,4 @@
 services:
-  lane_sspca_api.interface:
-    class: Drupal\lane_sspca_api\SSPCA_API
+  lane_client_api.interface:
+    class: Drupal\lane_client_api\CLIENT_API
     arguments: ['@http_client']
